@@ -13,8 +13,8 @@ var db *gorm.DB
 
 type Model struct {
 	ID int `gorm:"primary_key" json:"id"`
-	CreatedOn int `json:"created_on"`
-	ModifiedOn int `json:"modified_on"`
+	CreatedOn int64 `json:"created_on"`
+	UpdatedOn int64 `json:"updated_on"`
 }
 func init() {
 	var (
@@ -41,6 +41,9 @@ func init() {
 	}
 
 	if err = db.AutoMigrate(&Model{}); err != nil {
+		log.Println(err)
+	}
+	if err = db.AutoMigrate(&Tag{}); err != nil {
 		log.Println(err)
 	}
 }

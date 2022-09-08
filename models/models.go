@@ -50,6 +50,9 @@ func init() {
 	if err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&Article{}); err != nil {
 		log.Println(err)
 	}
+	if err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&Auth{}); err != nil {
+		log.Println(err)
+	}
 
 }
 func CloseDB() {

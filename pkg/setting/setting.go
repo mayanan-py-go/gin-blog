@@ -17,6 +17,7 @@ var (
 
 	PageSize  int
 	JwtSecret string
+	TokenTimeout time.Duration
 )
 
 func init() {
@@ -49,4 +50,5 @@ func LoadApp() {
 	}
 	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
 	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
+	TokenTimeout = time.Duration(sec.Key("TOKEN_TIMEOUT").MustInt64(60))
 }

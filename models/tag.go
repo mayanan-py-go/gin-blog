@@ -19,7 +19,7 @@ func (t *Tag) BeforeCreate(tx *gorm.DB) error {
 }
 func (t *Tag) AfterUpdate(tx *gorm.DB) error {
 	// UpdateColumn会忽略钩子
-	tx.Model(&Tag{}).Where("id = ?", t.ID).UpdateColumn("updated_on", time.Now().Unix())
+	tx.Model(&Tag{}).Where("id = ?", t.ID).UpdateColumn("modified_on", time.Now().Unix())
 	return nil
 }
 func GetTags(pageNum, pageSize int, maps any) []Tag {
@@ -44,7 +44,7 @@ func AddTag(name string, state int, createdBy string) bool {
 	})
 	return true
 }
-func ExitTagById(id int) bool {
+func ExistTagByID(id int) bool {
 	var tag Tag
 	db.Select("id").Where("id = ?", id).Take(&tag)
 	return tag.ID > 0

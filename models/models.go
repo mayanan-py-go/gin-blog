@@ -14,7 +14,7 @@ var db *gorm.DB
 type Model struct {
 	ID int `gorm:"primary_key" json:"id"`
 	CreatedOn int64 `json:"created_on"`
-	UpdatedOn int64 `json:"updated_on"`
+	ModifiedOn int64 `json:"modified_on"`
 }
 func init() {
 	var (
@@ -40,12 +40,17 @@ func init() {
 		log.Println(err)
 	}
 
-	if err = db.AutoMigrate(&Model{}); err != nil {
+	//if err = db.AutoMigrate(&Model{}); err != nil {
+	//	log.Println(err)
+	//}
+	if err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&Tag{}); err != nil {
 		log.Println(err)
 	}
-	if err = db.AutoMigrate(&Tag{}); err != nil {
+	// 可以通过Set设置附加参数，下面设置表的存储引擎为InnoDB
+	if err = db.Set("gorm:table_options", "ENGINE=InnoDB").AutoMigrate(&Article{}); err != nil {
 		log.Println(err)
 	}
+
 }
 func CloseDB() {
 	sqlDb, err := db.DB()

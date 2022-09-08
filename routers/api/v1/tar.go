@@ -97,7 +97,7 @@ func EditTag(ctx *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		code = e.SUCCESS
-		if models.ExitTagById(id) {
+		if models.ExistTagByID(id) {
 			data := make(map[string]any)
 			data["id"] = id
 			data["modified_by"] = modifiedBy
@@ -134,7 +134,7 @@ func DeleteTag(ctx *gin.Context) {
 	code := e.INVALID_PARAMS
 	if !valid.HasErrors() {
 		code = e.SUCCESS
-		if models.ExitTagById(id) {
+		if models.ExistTagByID(id) {
 			models.DeleteTag(id)
 		}else{
 			code = e.ERROR_NOT_EXIST_TAG

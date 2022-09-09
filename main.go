@@ -2,11 +2,10 @@ package main
 
 import (
 	"fmt"
+	_ "gin_log/models"
 	"gin_log/pkg/setting"
 	"gin_log/routers"
 	"net/http"
-
-	_ "gin_log/models"
 )
 
 func main() {

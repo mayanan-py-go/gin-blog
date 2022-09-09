@@ -3,6 +3,7 @@ package v1
 import (
 	"gin_log/models"
 	"gin_log/pkg/e"
+	"gin_log/pkg/logging"
 	"gin_log/pkg/setting"
 	"gin_log/pkg/util"
 	"github.com/astaxie/beego/validation"
@@ -166,7 +167,7 @@ func EditArticle(c *gin.Context) {
 		}
 	} else {
 		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Error(err.Key, err.Message)
 		}
 	}
 	c.JSON(http.StatusOK, gin.H{

@@ -3,12 +3,12 @@ package v1
 import (
 	"gin_log/models"
 	"gin_log/pkg/e"
+	"gin_log/pkg/logging"
 	"gin_log/pkg/setting"
 	"gin_log/pkg/util"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
-	"log"
 	"net/http"
 )
 
@@ -64,7 +64,7 @@ func AddTag(ctx *gin.Context) {
 		}
 	}else{
 		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Error(err.Key, err.Message)
 		}
 	}
 
@@ -113,7 +113,7 @@ func EditTag(ctx *gin.Context) {
 		}
 	}else{
 		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Error(err.Key, err.Message)
 		}
 	}
 
@@ -141,7 +141,7 @@ func DeleteTag(ctx *gin.Context) {
 		}
 	}else{
 		for _, err := range valid.Errors {
-			log.Println(err.Key, err.Message)
+			logging.Error(err.Key, err.Message)
 		}
 	}
 

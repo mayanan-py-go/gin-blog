@@ -3,18 +3,18 @@ package models
 import (
 	"fmt"
 	"gin_log/pkg/setting"
+	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"log"
-
-	"gorm.io/driver/mysql"
 )
 
 var db *gorm.DB
 
 type Model struct {
 	ID int `gorm:"primary_key" json:"id"`
-	CreatedOn int64 `json:"created_on"`
-	ModifiedOn int64 `json:"modified_on"`
+	CreatedOn int64 `json:"created_on" gorm:"autoCreateTime"`
+	ModifiedOn int64 `json:"modified_on" gorm:"autoUpdateTime"`
+	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
 func init() {
 	var (

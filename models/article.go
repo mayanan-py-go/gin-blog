@@ -17,6 +17,8 @@ type Article struct {
 	CreatedBy string `json:"created_by"`
 	ModifiedBy string `json:"modified_by"`
 	State int `json:"state"`
+
+	CoverImageUrl string `json:"cover_image_url" gorm:"type:varchar(255);default:'';comment:'封面图片地址'"`
 }
 func (a *Article) BeforeCreate(tx *gorm.DB) error {
 	a.CreatedOn = time.Now().Unix()
@@ -55,6 +57,7 @@ func AddArticle(data map[string]any) bool {
 		Content: data["content"].(string),
 		CreatedBy: data["created_by"].(string),
 		State: data["state"].(int),
+		CoverImageUrl: data["cover_image_url"].(string),
 	})
 	return true
 }

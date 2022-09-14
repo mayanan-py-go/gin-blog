@@ -28,15 +28,23 @@ const (
 	FATAL
 )
 
-func init() {
-	filePath := getLogFileFullPath()
-	F = openLogFile(filePath)
+func Setup() {
+	var err error
+	fileName, filePath := getLogFileName(), getLogFilePath()
+	F, err = openLogFile(fileName, filePath)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	logger = log.New(F, DefaultPrefix, log.LstdFlags)
 	go cron.ScheduleTask(updateF)
 }
 func updateF() {
-	filePath := getLogFileFullPath()
-	F = openLogFile(filePath)
+	var err error
+	fileName, filePath := getLogFileName(), getLogFilePath()
+	F, err = openLogFile(fileName, filePath)
+	if err != nil {
+		log.Fatalln(err)
+	}
 	logger = log.New(F, DefaultPrefix, log.LstdFlags)
 }
 func Debug(v ...any) {

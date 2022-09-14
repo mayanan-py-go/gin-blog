@@ -6,7 +6,7 @@ import (
 	"time"
 )
 
-var jwtSecret = []byte(setting.JwtSecret)
+var jwtSecret = []byte(setting.AppSetting.JwtSecret)
 
 type Claims struct {
 	Username string `json:"username"`
@@ -19,7 +19,7 @@ func GenerateToken(username, password string) (string, error) {
 		username,
 		password,
 		jwt.StandardClaims{
-			ExpiresAt: time.Now().Add(setting.TokenTimeout * time.Second).Unix(),
+			ExpiresAt: time.Now().Add(setting.AppSetting.TokenTimeout * time.Second).Unix(),
 			Issuer: "gin_blog",
 		},
 	}

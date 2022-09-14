@@ -6,49 +6,59 @@ import (
 	"time"
 )
 
-var (
-	Cfg *ini.File
-
-	RunMode string
-
-	HTTPPort     int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-
-	PageSize  int
+type App struct {
+	PageSize int
 	JwtSecret string
 	TokenTimeout time.Duration
-)
+	RuntimeRootPath string
 
-func init() {
-	var err error
-	Cfg, err = ini.Load("conf/app.ini")
+	ImagePrefixUrl string
+	ImageSavePath string
+	ImageMaxSize int
+	ImageAllowExts []string
+
+	LogSavePath string
+	LogSaveName string
+	LogFileExt string
+	TimeFormat string
+}
+var AppSetting = &App{}
+
+type Server struct {
+	RunMode string
+	HttpPort int
+	ReadTimeout time.Duration
+	WriteTimeout time.Duration
+}
+var ServerSetting = &Server{}
+
+type Database struct {
+	Type string
+	User string
+	Password string
+	Host string
+	Name string
+}
+var DatabaseSetting = &Database{}
+
+func Setup() {
+	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
 		log.Fatalf("fail to parse 'conf/app.ini': %v", err)
 	}
 
-	LoadBase()
-	LoadServer()
-	LoadApp()
-}
-func LoadBase() {
-	RunMode = Cfg.Section("").Key("RUN_MODE").MustString("debug")
-}
-func LoadServer() {
-	sec, err := Cfg.GetSection("server")
-	if err != nil {
-		log.Fatalf("fail to parse 'server': %v", err)
+	if err = cfg.Section("app").MapTo(AppSetting); err != nil {
+		log.Fatalf("cfg.Mapto AppSetting err:%v", err)
 	}
-	HTTPPort = sec.Key("HTTP_PORT").MustInt(8000)
-	ReadTimeout = time.Duration(sec.Key("READ_TIMEOUT").MustInt(60)) * time.Second
-	WriteTimeout = time.Duration(sec.Key("WRITE_TIMEOUT").MustInt(60)) * time.Second
-}
-func LoadApp() {
-	sec, err := Cfg.GetSection("app")
-	if err != nil {
-		log.Fatalf("fail to parse 'app': %v", err)
+	AppSetting.ImageMaxSize *= 1024 * 1024
+
+	if err = cfg.Section("server").MapTo(ServerSetting); err != nil {
+		log.Fatalf("cfg.Mapto ServerSetting err:%v", err)
 	}
-	PageSize = sec.Key("PAGE_SIZE").MustInt(10)
-	JwtSecret = sec.Key("JWT_SECRET").MustString("!@)*#)!@U#@*!@!)")
-	TokenTimeout = time.Duration(sec.Key("TOKEN_TIMEOUT").MustInt64(60))
+	ServerSetting.ReadTimeout *= time.Second
+	ServerSetting.WriteTimeout *= time.Second
+
+	if err = cfg.Section("database").MapTo(DatabaseSetting); err != nil {
+		log.Fatalf("cfg.Mapto DatabaseSetting err:%v", err)
+	}
 }

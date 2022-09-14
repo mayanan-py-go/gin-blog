@@ -32,7 +32,7 @@ func GetArticles(c *gin.Context) {
 	code := e.INVALID_PARAMS
 	if ! valid.HasErrors() {
 		code = e.SUCCESS
-		data["lists"] = models.GetArticles(util.GetPage(c), setting.PageSize, maps)
+		data["lists"] = models.GetArticles(util.GetPage(c), setting.AppSetting.PageSize, maps)
 		data["total"] = models.GetArticleTotal(maps)
 	} else {
 		for _, err := range valid.Errors {
@@ -80,7 +80,10 @@ func AddArticle(c *gin.Context) {
 	content := c.Query("content")
 	createdBy := c.Query("created_by")
 	state := com.StrTo(c.DefaultQuery("state", "0")).MustInt()
+	coverImageUrl := c.Query("cover_image_url")
 	valid := validation.Validation{}
+	valid.Required(coverImageUrl, "cover_image_url").Message("文章封面url不能为空")
+	valid.MaxSize(coverImageUrl, 255, "cover_image_url").Message("文章封面url长度不能超过255")
 	valid.Min(tagId, 1, "tag_id").Message("标签ID必须大于0")
 	valid.Required(title, "title").Message("标题不能为空")
 	valid.Required(desc, "desc").Message("简述不能为空")
@@ -97,6 +100,7 @@ func AddArticle(c *gin.Context) {
 			data["content"] = content
 			data["created_by"] = createdBy
 			data["state"] = state
+			data["cover_image_url"] = coverImageUrl
 			models.AddArticle(data)
 			code = e.SUCCESS
 		} else {
@@ -123,11 +127,14 @@ func EditArticle(c *gin.Context) {
 	desc := c.Query("desc")
 	content := c.Query("content")
 	modifiedBy := c.Query("modified_by")
+	coverImageUrl := c.Query("cover_image_url")
 	var state int = -1
 	if arg := c.Query("state"); arg != "" {
 		state = com.StrTo(arg).MustInt()
 		valid.Range(state, 0, 1, "state").Message("状态只允许0或1")
 	}
+	valid.Required(coverImageUrl, "cover_image_url").Message("文章封面url不能为空")
+	valid.MaxSize(coverImageUrl, 255, "cover_image_url").Message("文章封面url长度不能超过255")
 	valid.Min(id, 1, "id").Message("ID必须大于0")
 	valid.MaxSize(title, 100, "title").Message("标题最长为100字符")
 	valid.MaxSize(desc, 255, "desc").Message("简述最长为255字符")
@@ -140,6 +147,7 @@ func EditArticle(c *gin.Context) {
 			if models.ExistTagByID(tagId) {
 				data := make(map[string]any)
 				data["id"] = id
+				data["cover_image_url"] = coverImageUrl
 				if tagId > 0 {
 					data["tag_id"] = tagId
 				}

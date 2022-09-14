@@ -16,20 +16,13 @@ type Model struct {
 	ModifiedOn int64 `json:"modified_on" gorm:"autoUpdateTime"`
 	DeletedAt gorm.DeletedAt `gorm:"index"`
 }
-func init() {
-	var (
-		err error
-		dbName, user, password, host string
-	)
-	sec, err := setting.Cfg.GetSection("database")
-	if err != nil {
-		log.Fatal(2, "fail to GetSection 'database': %v", err)
-	}
+func Setup() {
+	var err error
 
-	dbName = sec.Key("NAME").String()
-	user = sec.Key("USER").String()
-	password = sec.Key("PASSWORD").String()
-	host = sec.Key("HOST").String()
+	dbName := setting.DatabaseSetting.Name
+	user := setting.DatabaseSetting.User
+	password := setting.DatabaseSetting.Password
+	host := setting.DatabaseSetting.Host
 
 	dsn := fmt.Sprintf(
 		"%s:%s@tcp(%s)/%s?charset=utf8mb4&parseTime=True&loc=Local",

@@ -9,7 +9,7 @@ import (
 
 var redisConn *redis.Pool
 
-func Setup() error {
+func Setup() {
 	redisConn = &redis.Pool{
 		MaxIdle: setting.RedisSetting.MaxIdle,  // 最大空闲链接数
 		MaxActive: setting.RedisSetting.MaxActive,  // 最大活跃链接数
@@ -33,7 +33,6 @@ func Setup() error {
 			return err
 		},
 	}
-	return nil
 }
 func Set(key string, data any, time int) error {
 	conn := redisConn.Get()

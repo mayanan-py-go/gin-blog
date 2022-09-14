@@ -41,6 +41,15 @@ type Database struct {
 }
 var DatabaseSetting = &Database{}
 
+type Redis struct {
+	Host string
+	Password string
+	MaxIdle int
+	MaxActive int
+	IdleTimeout time.Duration
+}
+var RedisSetting = &Redis{}
+
 func Setup() {
 	cfg, err := ini.Load("conf/app.ini")
 	if err != nil {
@@ -61,4 +70,9 @@ func Setup() {
 	if err = cfg.Section("database").MapTo(DatabaseSetting); err != nil {
 		log.Fatalf("cfg.Mapto DatabaseSetting err:%v", err)
 	}
+
+	if err = cfg.Section("redis").MapTo(RedisSetting); err != nil {
+		log.Fatalf("cfg.Mapto RedisSetting err:%v", err)
+	}
+	RedisSetting.IdleTimeout *= time.Second
 }

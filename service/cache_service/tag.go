@@ -2,10 +2,10 @@ package cache_service
 
 import (
 	"errors"
-	"fmt"
 	"gin_log/models"
 	"gin_log/pkg/e"
 	"gin_log/pkg/export"
+	"gin_log/pkg/file"
 	"github.com/tealeg/xlsx"
 	"github.com/xuri/excelize/v2"
 	"io"
@@ -44,8 +44,8 @@ func (t *Tag) Export() (string, error) {
 		return "", errors.New("暂无导出数据")
 	}
 
-	file := xlsx.NewFile()
-	sheet, err := file.AddSheet("标签信息")
+	f := xlsx.NewFile()
+	sheet, err := f.AddSheet("标签信息")
 	if err != nil {
 		return "", err
 	}
@@ -79,23 +79,26 @@ func (t *Tag) Export() (string, error) {
 	filename := "tag-" + time + ".xlsx"
 
 	fullPath := export.GetExcelFullPath() + filename
-	err = file.Save(fullPath)
+	err = file.IsNotExistMkDir(export.GetExcelFullPath())
+	if err != nil {
+		return "", err
+	}
+	err = f.Save(fullPath)
 	if err != nil {
 		return "", err
 	}
 	return filename, nil
 }
 func (t *Tag) Import(r io.Reader) error {
-	file, err := excelize.OpenReader(r)
+	f, err := excelize.OpenReader(r)
 	if err != nil {
 		return err
 	}
-	rows, err := file.GetRows("标签信息")
+	rows, err := f.GetRows("标签信息")
 	if err != nil {
 		return err
 	}
 	for iRow, row := range rows {
-		fmt.Println(iRow)
 		if iRow > 0 {
 			var data []string
 			for _, cell := range row {

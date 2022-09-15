@@ -2,10 +2,13 @@ package v1
 
 import (
 	"gin_log/models"
+	"gin_log/pkg/app"
 	"gin_log/pkg/e"
+	"gin_log/pkg/export"
 	"gin_log/pkg/logging"
 	"gin_log/pkg/setting"
 	"gin_log/pkg/util"
+	"gin_log/service/cache_service"
 	"github.com/astaxie/beego/validation"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
@@ -152,10 +155,46 @@ func DeleteTag(ctx *gin.Context) {
 	})
 }
 
+// ExportTag 导出标签
+func ExportTag(ctx *gin.Context) {
+	appG := app.Gin{C: ctx}
+	name := ctx.PostForm("name")
+	state := -1
+	if arg := ctx.PostForm("state"); arg != "" {
+		state = com.StrTo(arg).MustInt()
+	}
 
+	tagService := cache_service.Tag{Name: name, State: state, PageNum: util.GetPage(ctx), PageSize: setting.AppSetting.ExportMaxRows}
+	filename, err := tagService.Export()
+	if err != nil {
+		appG.Response(http.StatusOK, e.ERROR_EXPORT_TAG_FAIL, nil)
+		return
+	}
 
+	appG.Response(http.StatusOK, e.SUCCESS, map[string]string{
+		"export_url": export.GetExcelFullUrl(filename),
+		"export_save_url": export.GetExcelPath() + filename,
+	})
+}
 
+// ImportTag 导入标签
+func ImportTag(ctx *gin.Context) {
+	appG := app.Gin{C: ctx}
 
+	file, _, err := ctx.Request.FormFile("file")
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusOK, e.ERROR, nil)
+		return
+	}
 
+	tag := cache_service.Tag{}
+	err = tag.Import(file)
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusOK, e.ERROR, nil)
+		return
+	}
 
-
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
+}

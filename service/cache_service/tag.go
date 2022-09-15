@@ -1,9 +1,17 @@
 package cache_service
 
 import (
+	"errors"
+	"fmt"
+	"gin_log/models"
 	"gin_log/pkg/e"
+	"gin_log/pkg/export"
+	"github.com/tealeg/xlsx"
+	"github.com/xuri/excelize/v2"
+	"io"
 	"strconv"
 	"strings"
+	time2 "time"
 )
 
 type Tag struct {
@@ -29,4 +37,72 @@ func (t *Tag) GetTagsKey() string {
 		keys = append(keys, strconv.Itoa(t.PageSize))
 	}
 	return strings.Join(keys, "_")
+}
+func (t *Tag) Export() (string, error) {
+	tags := models.GetTags(t.PageNum, t.PageSize, map[string]any{"name": t.Name, "state": t.State})
+	if len(tags) == 0 {
+		return "", errors.New("暂无导出数据")
+	}
+
+	file := xlsx.NewFile()
+	sheet, err := file.AddSheet("标签信息")
+	if err != nil {
+		return "", err
+	}
+
+	titles := []string{"ID", "名称", "创建人", "创建时间", "修改人", "修改时间"}
+	row := sheet.AddRow()
+
+	var cell *xlsx.Cell
+	for _, title := range titles {
+		cell = row.AddCell()
+		cell.Value = title
+	}
+
+	for _, tag := range tags {
+		values := []string{
+			strconv.Itoa(tag.ID),
+			tag.Name,
+			tag.CreatedBy,
+			strconv.Itoa(int(tag.CreatedOn)),
+			tag.ModifiedBy,
+			strconv.Itoa(int(tag.ModifiedOn)),
+		}
+		row = sheet.AddRow()
+		for _, value := range values {
+			cell = row.AddCell()
+			cell.Value = value
+		}
+	}
+
+	time := strconv.Itoa(int(time2.Now().Unix()))
+	filename := "tag-" + time + ".xlsx"
+
+	fullPath := export.GetExcelFullPath() + filename
+	err = file.Save(fullPath)
+	if err != nil {
+		return "", err
+	}
+	return filename, nil
+}
+func (t *Tag) Import(r io.Reader) error {
+	file, err := excelize.OpenReader(r)
+	if err != nil {
+		return err
+	}
+	rows, err := file.GetRows("标签信息")
+	if err != nil {
+		return err
+	}
+	for iRow, row := range rows {
+		fmt.Println(iRow)
+		if iRow > 0 {
+			var data []string
+			for _, cell := range row {
+				data = append(data, cell)
+			}
+			models.AddTag(data[1], 1, data[2])
+		}
+	}
+	return nil
 }

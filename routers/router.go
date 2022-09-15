@@ -2,6 +2,7 @@ package routers
 
 import (
 	"gin_log/middleware/jwt"
+	"gin_log/pkg/export"
 	"gin_log/pkg/setting"
 	"gin_log/pkg/upload"
 	v1 "gin_log/routers/api/v1"
@@ -20,12 +21,15 @@ func InitRouter() *gin.Engine {
 
 	r.GET("/auth", v1.GetAuth)
 	r.StaticFS("/upload/images", http.Dir(upload.GetImageFullPath()))
+	r.StaticFS("/export", http.Dir(export.GetExcelFullPath()))
 
 	apiv1 := r.Group("/api/v1")
 	apiv1.Use(jwt.JWT())
 
 	{
 		apiv1.POST("/upload", v1.UploadImage)
+		apiv1.POST("/tags/export", v1.ExportTag)
+		apiv1.POST("/tags/import", v1.ImportTag)
 	}
 
 	// tag

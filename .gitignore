@@ -1,4 +1,4 @@
 app.ini
-/runtime/logs
+/runtime/
 *.exe
 .idea/

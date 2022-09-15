@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func main() {
+func main2() {
 	log.Println("Staring...")
 	c := cron.New()
 	e1, err := c.AddFunc("* * * * *", func() {

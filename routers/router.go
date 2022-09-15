@@ -30,6 +30,7 @@ func InitRouter() *gin.Engine {
 		apiv1.POST("/upload", v1.UploadImage)
 		apiv1.POST("/tags/export", v1.ExportTag)
 		apiv1.POST("/tags/import", v1.ImportTag)
+		apiv1.POST("/articles/poster/generate", v1.GenerateArticlePoster)
 	}
 
 	// tag

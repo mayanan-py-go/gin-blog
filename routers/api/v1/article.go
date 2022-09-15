@@ -5,9 +5,11 @@ import (
 	"gin_log/pkg/app"
 	"gin_log/pkg/e"
 	"gin_log/pkg/logging"
+	"gin_log/pkg/qrcode"
 	"gin_log/pkg/setting"
 	"gin_log/pkg/util"
 	"github.com/astaxie/beego/validation"
+	"github.com/boombuler/barcode/qr"
 	"github.com/gin-gonic/gin"
 	"github.com/unknwon/com"
 	"net/http"
@@ -208,4 +210,19 @@ func DeleteArticle(c *gin.Context) {
 		"msg" : e.GetMsg(code),
 		"data" : make(map[string]string),
 	})
+}
+
+const QR_CODE = "https://github.com/mayanan-py-go/gin-blog"
+// GenerateArticlePoster 生成文章二维码
+func GenerateArticlePoster(c *gin.Context) {
+	appG := app.Gin{C: c}
+	qrCode := qrcode.NewQrCode(QR_CODE, 300, 300, qrcode.EXT_JPG, qr.L, qr.Auto)
+	path := qrcode.GetQrCodeFullPath()
+	_, _, err := qrCode.Encode(path)
+	if err != nil {
+		logging.Warn(err)
+		appG.Response(http.StatusOK, e.ERROR, nil)
+		return
+	}
+	appG.Response(http.StatusOK, e.SUCCESS, nil)
 }

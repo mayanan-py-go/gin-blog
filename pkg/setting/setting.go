@@ -24,6 +24,8 @@ type App struct {
 
 	ExportSavePath string
 	ExportMaxRows int
+
+	QrCodeSavePath string
 }
 var AppSetting = &App{}
 
